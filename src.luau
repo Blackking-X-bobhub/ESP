@@ -63,7 +63,7 @@ function KBOB_ESPLibrary:CreateESP(options: ESP_Params)
 	BillboardGui.Name = Text
 	BillboardGui.Adornee = Object
 	BillboardGui.AlwaysOnTop = true
-	BillboardGui.Enabled = true
+	BillboardGui.Enabled = false
 	BillboardGui.Size = UDim2.new(0, 200, 0, 50)
 	BillboardGui.MaxDistance = math.huge
 	BillboardGui.ResetOnSpawn = false
@@ -89,6 +89,7 @@ function KBOB_ESPLibrary:CreateESP(options: ESP_Params)
 	local Highlight = Objects.Highlight:Clone()
 	Highlight.Parent = Object
 	Highlight.Name = 'Highlight: ' .. Object.Name
+	Highlight.Enabled = false
 	Highlight.Adornee = Object
 	Highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
 	Highlight.FillTransparency = 0.5
@@ -250,5 +251,6 @@ function KBOB_ESPLibrary:Unload()
 
 	print('ESP has unloaded')
 end
+
 
 return KBOB_ESPLibrary
