@@ -1,4 +1,3 @@
-
 --[[
 	author: notzanocoddz (bobhub)
 ]]
@@ -13,9 +12,10 @@ local Objects = {
 }
 
 local Workspace = game:GetService('Workspace');
+local Players = game:GetService('Players');
 local RunService = game:GetService('RunService');
-local CurrentCamera = Workspace.CurrentCamera;
-local Player = game.Players.LocalPlayer;
+local CurrentCamera = Workspace.CurrentCamera
+local LocalPlayer = Players.LocalPlayer
 
 if not Workspace:FindFirstChild('KBOB_ESP') then
 	local folder = Instance.new('Folder', Workspace)
@@ -33,8 +33,10 @@ end
 
 local KBOB_ESPLibrary = {
 	ESPObjects = {},
-	ESPSettings = {
-		EnabledDistance = false,
+	Settings = {
+		Distance = false,
+		Rainbow = false,
+		Tracer = false,
 	}
 }
 KBOB_ESPLibrary.__index = KBOB_ESPLibrary
@@ -49,8 +51,11 @@ function KBOB_ESPLibrary:CreateESP(options: ESP_Params)
 	if not options then return end
 
 	local Text = options.Text or 'Object'
-	local Color = options.Color
+	local Color = options.Color or Color3.fromRGB(255, 255, 255)
 	local Object = options.Object
+
+	if Object:GetAttribute("KBOBESP_Added") then return end
+	Object:SetAttribute("KBOBESP_Added", true)
 
 	local classFolder = Workspace.KBOB_ESP:FindFirstChild('Class: ' .. Object.Name)
 	if not classFolder then
@@ -89,7 +94,6 @@ function KBOB_ESPLibrary:CreateESP(options: ESP_Params)
 	local Highlight = Objects.Highlight:Clone()
 	Highlight.Parent = Object
 	Highlight.Name = 'Highlight: ' .. Object.Name
-	Highlight.Enabled = true
 	Highlight.Adornee = Object
 	Highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
 	Highlight.FillTransparency = 0.5
@@ -97,161 +101,133 @@ function KBOB_ESPLibrary:CreateESP(options: ESP_Params)
 	Highlight.OutlineTransparency = 0
 	Highlight.OutlineColor = Color
 
-     -- Synapse X API (Drawing)
+	-- Synapse X API (Drawing)
 	local Line = Drawing.new('Line')
-	Line.Color = Color
-	Line.Thickness = 1
-	Line.Transparency = 1
 	Line.Visible = false
+	Line.Color = Color
+	Line.Transparency = 1
+	Line.Thickness = 1.5
 
-	local distanceConn = RunService.RenderStepped:Connect(function()
-		local pos = GetObjectPosition(Object)
-		if pos and TextLabel then
-			if self.ESPSettings.EnabledDistance then
-				local dist = math.round(Player:DistanceFromCharacter(pos))
-				TextLabel.Text = string.format('%s\n[%sms]', Text, dist)
+	local connection = RunService.RenderStepped:Connect(function()
+		if TextLabel and Object and Object:IsDescendantOf(Workspace) then
+			local pos = GetObjectPosition(Object)
+			if not pos then return end
+
+			local distance = LocalPlayer:DistanceFromCharacter(pos)
+
+			local Vector, OnScreen = CurrentCamera:WorldToViewportPoint(pos)
+			if OnScreen then
+				Line.From = Vector2.new(CurrentCamera.ViewportSize.X / 2, CurrentCamera.ViewportSize.Y)
+				Line.To = Vector2.new(Vector.X, Vector.Y)
+				Line.Visible = (self.Settings.Tracer and true) or false
+			else
+				Line.Visible = false
+			end
+
+			if self.Settings.Distance then
+				TextLabel.Text = Text .. '\n' .. math.floor(distance) .. ' Studs'
 			else
 				TextLabel.Text = Text
 			end
 		end
 	end)
 
-	local tracerConn = RunService.RenderStepped:Connect(function()
-		local pos = GetObjectPosition(Object)
-		if pos then
-			local Vector, OnScreen = CurrentCamera:WorldToViewportPoint(pos)
-			if OnScreen then
-				Line.From = Vector2.new(CurrentCamera.ViewportSize.X / 2, CurrentCamera.ViewportSize.Y)
-				Line.To = Vector2.new(Vector.X, Vector.Y)
-				-- Line.Visible = true
-			else
-				Line.Visible = false
-			end
-		end
-	end)
-
 	self.ESPObjects[Object] = {
-		Line = Line,
-		DistanceConnection = distanceConn,
-		TracerConnection = tracerConn,
-		BillboardGui = BillboardGui,
+		Folder = classFolder,
+		Highlight = Highlight,
+		TextLabel = TextLabel,
+		Connection = connection,
 	}
 end
 
-function KBOB_ESPLibrary:SetEnabled(object: Instance, enabled: boolean)
-	if not object then return end
-
-	self:SetBillboardEnabled(object, enabled)
-	self:SetHighlightEnabled(object, enabled)
-end
-
-function KBOB_ESPLibrary:SetTracerEnabled(object: Instance, enabled: boolean)
-	local esp = self.ESPObjects[object]
-	if esp and esp.Line then
-		esp.Line.Visible = enabled
-	end
-end
-
-function KBOB_ESPLibrary:SetBillboardEnabled(object: Instance, enabled: boolean)
-	if not object then return end
-	if not Workspace:FindFirstChild('KBOB_ESP') then return end
-
-	local classFolder = Workspace.KBOB_ESP:FindFirstChild('Class: ' .. object.Name)
-	if classFolder then
-		for _, gui in pairs(classFolder:GetChildren()) do
-			if gui:IsA('BillboardGui') and gui.Adornee == object then
-				gui.Enabled = enabled
-			end
-		end
-	end
-end
-
-function KBOB_ESPLibrary:SetHighlightEnabled(object: Instance, enabled: boolean)
-	local highlight = object:FindFirstChild('Highlight: ' .. object.Name)
-	if highlight and highlight:IsA('Highlight') then
-		highlight.Enabled = enabled
-	end
-end
-
-function KBOB_ESPLibrary:SetColor(object: Instance, color: Color3)
-	if not object or not color then return end
-	if not Workspace:FindFirstChild('KBOB_ESP') then return end
-
-	local classFolder = Workspace.KBOB_ESP:FindFirstChild('Class: ' .. object.Name)
-	if classFolder then
-		for _, gui in pairs(classFolder:GetChildren()) do
-			if gui:IsA('BillboardGui') and gui.Adornee == object then
-				local frame = gui:FindFirstChild('Frame')
-				if frame then
-					for _, label in pairs(frame:GetChildren()) do
-						if label:IsA('TextLabel') then
-							label.TextColor3 = color
-						end
-					end
-				end
-			end
-		end
-	end
-
-	local highlight = object:FindFirstChild('Highlight: ' .. object.Name)
-	if highlight and highlight:IsA('Highlight') then
-		highlight.FillColor = color
-		highlight.OutlineColor = color
-	end
-
-	local esp = self.ESPObjects[object]
-	if esp and esp.Line then
-		esp.Line.Color = color
-	end
-end
-
 function KBOB_ESPLibrary:EnabledDistance(enabled: boolean)
-	self.ESPSettings.EnabledDistance = enabled
+	self.Settings.Distance = enabled
+end
+
+function KBOB_ESPLibrary:EnabledTracer(enabled: boolean)
+	self.Settings.Tracer = enabled
+end
+
+function KBOB_ESPLibrary:SetColor(object: Instance, newColor: Color3)
+	if not object then return end
+	local esp = self.ESPObjects[object]
+	if not esp then return end
+	
+	if esp.TextLabel then
+		esp.TextLabel.TextColor3 = newColor
+	end
+
+	if esp.Highlight then
+		esp.Highlight.FillColor = newColor
+		esp.Highlight.OutlineColor = newColor
+	end
+end
+
+function KBOB_ESPLibrary:SetText(object: Instance, newText: string)
+	if not object then return end
+	local esp = self.ESPObjects[object]
+	if not esp then return end
+	
+	if esp.TextLabel then
+		esp.TextLabel.Text = newText
+	end
+end
+
+function KBOB_ESPLibrary:ShowRainbow(enabled: boolean)
+	self.Settings.Rainbow = enabled
 end
 
 function KBOB_ESPLibrary:RemoveESP(object: Instance)
 	if not object then return end
 
-	local classFolder = Workspace.KBOB_ESP:FindFirstChild('Class: ' .. object.Name)
+	local espFolder = Workspace:FindFirstChild("KBOB_ESP")
+	if not espFolder then return end
+
+	local classFolder = espFolder:FindFirstChild("Class: " .. object.Name)
 	if classFolder then
 		classFolder:Destroy()
 	end
 
-	local highlight = object:FindFirstChild('Highlight: ' .. object.Name)
+	local highlight = object:FindFirstChild("Highlight: " .. object.Name)
 	if highlight then
 		highlight:Destroy()
 	end
 
-	local esp = self.ESPObjects[object]
-	if esp then
-		if esp.Line then esp.Line:Remove() end
-		if esp.DistanceConnection then esp.DistanceConnection:Disconnect() end
-		if esp.TracerConnection then esp.TracerConnection:Disconnect() end
+	if object:GetAttribute("KBOBESP_Added") then
+		object:SetAttribute("KBOBESP_Added", nil)
+	end
+
+	local record = self.ESPObjects[object]
+	if record then
+		if record.Connection then
+			record.Connection:Disconnect()
+		end
 		self.ESPObjects[object] = nil
 	end
 end
 
 function KBOB_ESPLibrary:Unload()
-	for object, esp in pairs(self.ESPObjects) do
-		if esp.Line then esp.Line:Remove() end
-		if esp.DistanceConnection then esp.DistanceConnection:Disconnect() end
-		if esp.TracerConnection then esp.TracerConnection:Disconnect() end
-          	if esp.BillboardGui then esp.BillboardGui:Destroy() end
+	local espFolder = Workspace:FindFirstChild("KBOB_ESP")
+	if espFolder then
+		espFolder:Destroy()
+	end	
 
-		local highlight = object:FindFirstChild('Highlight: ' .. object.Name)
+	for object, data in pairs(self.ESPObjects) do
+		if data.Connection then
+			data.Connection:Disconnect()
+		end
+
+		local highlight = object:FindFirstChild("Highlight: " .. object.Name)
 		if highlight then
 			highlight:Destroy()
 		end
+
+		if object:GetAttribute("KBOBESP_Added") then
+			object:SetAttribute("KBOBESP_Added", nil)
+		end
 	end
+
 	self.ESPObjects = {}
-
-	if Workspace:FindFirstChild('KBOB_ESP') then
-		Workspace.KBOB_ESP:Destroy()
-	end
-
-	print('ESP has unloaded')
 end
 
-
 return KBOB_ESPLibrary
-
