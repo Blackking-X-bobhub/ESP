@@ -39,6 +39,7 @@ end
 
 local KBOB_ESPLibrary = {
 	ESPObjects = {},
+	TextSize = 18,
 	Settings = {
 		Distance = false,
 		Rainbow = false,
@@ -91,7 +92,7 @@ function KBOB_ESPLibrary:CreateESP(options: ESP_Params)
 	TextLabel.Size = UDim2.new(1, 0, 1, 0)
 	TextLabel.FontFace = Font.new('rbxassetid://12187374954', Enum.FontWeight.Regular, Enum.FontStyle.Normal)
 	TextLabel.RichText = true
-	TextLabel.FontSize = Enum.FontSize.Size18
+	TextLabel.TextSize = self.TextSize
 	TextLabel.Text = Text
 	TextLabel.TextColor3 = Color
 	TextLabel.TextStrokeTransparency = 0
@@ -210,14 +211,11 @@ function KBOB_ESPLibrary:SetText(object: Instance, newText: string)
 	end
 end
 
-function KBOB_ESPLibrary:SetTextSize(size: string | number)
+function KBOB_ESPLibrary:SetTextSize(size: number)
 	for _, esp in pairs(self.ESPObjects) do
 		if esp.TextLabel then
 			if typeof(size) == "number" then
-				esp.TextLabel.TextScaled = false
 				esp.TextLabel.TextSize = size
-			elseif typeof(size) == "string" and size:lower() == "scaled" then
-				esp.TextLabel.TextScaled = true
 			end
 		end
 	end
