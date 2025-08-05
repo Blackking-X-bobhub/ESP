@@ -4,6 +4,12 @@
 
 if not Drawing then return end
 
+local env = getgenv();
+
+if env.KBOBESPLibrary_Loaded then
+	return
+end
+
 local Objects = {
 	['BillboardGui'] = Instance.new('BillboardGui'),
 	['Frame'] = Instance.new('Frame'),
@@ -68,7 +74,7 @@ function KBOB_ESPLibrary:CreateESP(options: ESP_Params)
 	BillboardGui.Name = Text
 	BillboardGui.Adornee = Object
 	BillboardGui.AlwaysOnTop = true
-	BillboardGui.Enabled = true
+	BillboardGui.Enabled = false
 	BillboardGui.Size = UDim2.new(0, 200, 0, 50)
 	BillboardGui.MaxDistance = math.huge
 	BillboardGui.ResetOnSpawn = false
@@ -93,6 +99,7 @@ function KBOB_ESPLibrary:CreateESP(options: ESP_Params)
 
 	local Highlight = Objects.Highlight:Clone()
 	Highlight.Parent = Object
+	Highlight.Enabled = false
 	Highlight.Name = 'Highlight: ' .. Object.Name
 	Highlight.Adornee = Object
 	Highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
@@ -134,8 +141,10 @@ function KBOB_ESPLibrary:CreateESP(options: ESP_Params)
 
 	self.ESPObjects[Object] = {
 		Folder = classFolder,
+		BillboardGui = BillboardGui,
 		Highlight = Highlight,
 		TextLabel = TextLabel,
+		Line = Line,
 		Connection = connection,
 	}
 end
@@ -146,6 +155,30 @@ end
 
 function KBOB_ESPLibrary:EnabledTracer(enabled: boolean)
 	self.Settings.Tracer = enabled
+end
+
+function KBOB_ESPLibrary:ShowRainbow(enabled: boolean)
+	self.Settings.Rainbow = enabled
+end
+
+function KBOB_ESPLibrary:SetEnabled(object: Instance, enabled: boolean)
+	if not object then return end
+
+	local record = self.ESPObjects and self.ESPObjects[object]
+	if not record then return end
+
+	if record.BillboardGui and record.TextLabel then
+		record.BillboardGui.Enabled = enabled
+		record.TextLabel.Visible = enabled
+	end
+
+	if record.Highlight then
+		record.Highlight.Enabled = enabled
+	end
+
+	if record.Line then
+		record.Line.Visible = enabled and self.Settings.Tracer
+	end
 end
 
 function KBOB_ESPLibrary:SetColor(object: Instance, newColor: Color3)
@@ -161,6 +194,10 @@ function KBOB_ESPLibrary:SetColor(object: Instance, newColor: Color3)
 		esp.Highlight.FillColor = newColor
 		esp.Highlight.OutlineColor = newColor
 	end
+
+	if esp.Line then
+		esp.Line.Color = newColor
+	end
 end
 
 function KBOB_ESPLibrary:SetText(object: Instance, newText: string)
@@ -173,8 +210,17 @@ function KBOB_ESPLibrary:SetText(object: Instance, newText: string)
 	end
 end
 
-function KBOB_ESPLibrary:ShowRainbow(enabled: boolean)
-	self.Settings.Rainbow = enabled
+function KBOB_ESPLibrary:SetTextSize(size: string | number)
+	for _, esp in pairs(self.ESPObjects) do
+		if esp.TextLabel then
+			if typeof(size) == "number" then
+				esp.TextLabel.TextScaled = false
+				esp.TextLabel.TextSize = size
+			elseif typeof(size) == "string" and size:lower() == "scaled" then
+				esp.TextLabel.TextScaled = true
+			end
+		end
+	end
 end
 
 function KBOB_ESPLibrary:RemoveESP(object: Instance)
@@ -202,11 +248,16 @@ function KBOB_ESPLibrary:RemoveESP(object: Instance)
 		if record.Connection then
 			record.Connection:Disconnect()
 		end
+		if record.Line then
+			record.Line:Remove()
+		end
 		self.ESPObjects[object] = nil
 	end
 end
 
 function KBOB_ESPLibrary:Unload()
+	env.KBOBESPLibrary_Loaded = false
+
 	local espFolder = Workspace:FindFirstChild("KBOB_ESP")
 	if espFolder then
 		espFolder:Destroy()
@@ -215,6 +266,10 @@ function KBOB_ESPLibrary:Unload()
 	for object, data in pairs(self.ESPObjects) do
 		if data.Connection then
 			data.Connection:Disconnect()
+		end
+
+		if data.Line then
+			data.Line:Remove()	
 		end
 
 		local highlight = object:FindFirstChild("Highlight: " .. object.Name)
@@ -228,6 +283,8 @@ function KBOB_ESPLibrary:Unload()
 	end
 
 	self.ESPObjects = {}
+	warn('KBOB ESPLibrary has unloaded!!!')
 end
 
+env.KBOBESPLibrary_Loaded = true
 return KBOB_ESPLibrary
