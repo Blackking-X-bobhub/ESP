@@ -127,7 +127,7 @@ function KBOB_ESPLibrary:CreateESP(options: ESP_Params)
 			if OnScreen then
 				Line.From = Vector2.new(CurrentCamera.ViewportSize.X / 2, CurrentCamera.ViewportSize.Y)
 				Line.To = Vector2.new(Vector.X, Vector.Y)
-				Line.Visible = self.Settings.Tracer
+				Line.Visible = self.Settings.Tracer or false
 			else
 				Line.Visible = false
 			end
@@ -286,3 +286,4 @@ end
 
 env.KBOBESPLibrary_Loaded = true
 return KBOB_ESPLibrary
+
