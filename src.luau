@@ -65,7 +65,7 @@ end
 local KBOB_ESPLibrary = {
 	ESPObjects = {},
 	Settings = {
-	     Distance = false,
+	    Distance = false,
 		Tracer = false,
 		Rainbow = false,
 		TextSize = 18,
@@ -552,3 +552,4 @@ end)
 
 Globals.KBOB_ESPLibrary = KBOB_ESPLibrary
 return KBOB_ESPLibrary
+
