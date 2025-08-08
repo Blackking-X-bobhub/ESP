@@ -142,6 +142,7 @@ function KBOB_ESPLibrary:CreateESP(params: ESP_Params)
 	TextLabel.FontFace = Font.new('rbxassetid://12187374954', Enum.FontWeight.Regular, Enum.FontStyle.Normal)
 	TextLabel.RichText = true
 	TextLabel.TextSize = self.Settings.TextSize
+	TextLabel.Visible = self.Settings.Text
 	TextLabel.Text = Text
 	TextLabel.TextColor3 = Color
 	TextLabel.TextStrokeTransparency = 0
@@ -314,4 +315,5 @@ end))
 
 Globals.KBOB_ESPLibrary = KBOB_ESPLibrary
 return KBOB_ESPLibrary
+
 
