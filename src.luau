@@ -74,7 +74,7 @@ function KBOB_ESPLibrary.new()
 	local self = setmetatable({}, KBOB_ESPLibrary)
 	self.ESPObjects = {}
 	self.Settings = {
-	     Distance = false,
+	    Distance = false,
 		Rainbow = false,
 		TextSize = 18,
 		Text = true,
@@ -147,14 +147,14 @@ function KBOB_ESPLibrary:CreateESP(params: ESP_Params)
 	TextLabel.TextStrokeTransparency = 0
 	TextLabel.TextWrapped = true
 
-    	local TracerLineFrame = Instance.new("Frame")
-    	TracerLineFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-    	TracerLineFrame.BackgroundColor3 = Color
-    	TracerLineFrame.BorderSizePixel = 0
+    local TracerLineFrame = Instance.new("Frame")
+    TracerLineFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+    TracerLineFrame.BackgroundColor3 = Color
+    TracerLineFrame.BorderSizePixel = 0
    	TracerLineFrame.Size = UDim2.new(0, 2, 0, 100)
-    	TracerLineFrame.Visible = self.Settings.Tracer
-    	TracerLineFrame.ZIndex = 5
-    	TracerLineFrame.Parent = TracerLine
+    TracerLineFrame.Visible = self.Settings.Tracer
+    TracerLineFrame.ZIndex = 5
+    TracerLineFrame.Parent = TracerLine
 
 	local Highlight = Objects.Highlight:Clone()
 	Highlight.Parent = Object
@@ -184,16 +184,16 @@ function KBOB_ESPLibrary:CreateESP(params: ESP_Params)
 			return
 		end
 
-        	local espData = self.ESPObjects[Object]
-        	if not espData then return end
-        	local esp = espData[1]
+        local espData = self.ESPObjects[Object]
+        if not espData then return end
+        local esp = espData[1]
 
-        	if not esp.Enabled then
-            	esp.TextLabel.Visible = false
-            	esp.Highlight.Enabled = false
-            	esp.Tracer.Visible = false
-            	return
-        	end
+        if not esp.Enabled then
+            esp.TextLabel.Visible = false
+            esp.Highlight.Enabled = false
+            esp.Tracer.Visible = false
+            return
+        end
 
 		local position = GetPartPosition(Object)
 		if not position then return end
@@ -211,20 +211,20 @@ function KBOB_ESPLibrary:CreateESP(params: ESP_Params)
 			end
 		end
 
-        	if self.Settings.Tracer and onScreen then
-            	local from = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
-            	local to = Vector2.new(screenPos.X, screenPos.Y)
-            	local dir = to - from
-            	local length = dir.Magnitude
-            	local midPos = (from + to) / 2
+        if self.Settings.Tracer and onScreen then
+            local from = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
+            local to = Vector2.new(screenPos.X, screenPos.Y)
+            local dir = to - from
+            local length = dir.Magnitude
+            local midPos = (from + to) / 2
 
-            	esp.Tracer.Position = UDim2.new(0, midPos.X, 0, midPos.Y)
-            	esp.Tracer.Rotation = math.deg(math.atan2(dir.Y, dir.X))
-            	esp.Tracer.Size = UDim2.new(0, length, 0, self.Settings.TracerThickness)
-            	esp.Tracer.Visible = true
-        	else
+            esp.Tracer.Position = UDim2.new(0, midPos.X, 0, midPos.Y)
+            esp.Tracer.Rotation = math.deg(math.atan2(dir.Y, dir.X))
+            esp.Tracer.Size = UDim2.new(0, length, 0, self.Settings.TracerThickness)
+            esp.Tracer.Visible = true
+        else
           	esp.Tracer.Visible = false
-        	end
+        end
 
 		esp.Highlight.Enabled = self.Settings.Highlight and onScreen
 
@@ -235,11 +235,11 @@ function KBOB_ESPLibrary:CreateESP(params: ESP_Params)
 			esp.Highlight.OutlineColor = rainbow
 			esp.TracerLineFrame.BackgroundColor3 = rainbow
 		else
-               local currentColor = esp.OriginalColor
-               esp.TextLabel.TextColor3 = currentColor
-               esp.Highlight.FillColor = currentColor
-               esp.Highlight.OutlineColor = currentColor
-               esp.TracerLineFrame.BackgroundColor3 = currentColor
+            local currentColor = esp.OriginalColor
+            esp.TextLabel.TextColor3 = currentColor
+            esp.Highlight.FillColor = currentColor
+            esp.Highlight.OutlineColor = currentColor
+            esp.TracerLineFrame.BackgroundColor3 = currentColor
 		end
 	end)
 
@@ -314,3 +314,4 @@ end))
 
 Globals.KBOB_ESPLibrary = KBOB_ESPLibrary
 return KBOB_ESPLibrary
+
