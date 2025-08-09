@@ -278,16 +278,16 @@ end
 function KBOB_ESPLibrary:RemoveESP(object: Instance)
 	if not object then return end
 	for _, esp in pairs(self.ESPObjects[object] or {}) do
-		if esp.BillboardFolder then esp.BillboardFolder:Destroy() end
 		if esp.BillboardGui then esp.BillboardGui:Destroy() end
 		if esp.Connection then esp.Connection:Disconnect() end
 		if esp.Highlight then esp.Highlight:Destroy() end
 		if esp.Tracer then esp.Tracer:Destroy() end
+		if esp.BillboardFolder then esp.BillboardFolder:Destroy() end
 	end
 
-	local class = Workspace.KBOB_ESP:FindFirstChild('Class: '.. self.ESPObjects[object])
-	if class then
-		class:Destroy()
+	local classFolder = Workspace.KBOB_ESP:FindFirstChild('Class: '.. object.Name)
+	if classFolder and #classFolder:GetChildren() == 0 then
+		classFolder:Destroy()
 	end
 	
 	self.ESPObjects[object] = nil
@@ -323,3 +323,4 @@ end))
 
 Globals.KBOB_ESPLibrary = KBOB_ESPLibrary
 return KBOB_ESPLibrary
+
