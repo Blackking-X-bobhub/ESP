@@ -190,7 +190,7 @@ function KBOB_ESPLibrary:CreateESP(params: ESP_Params)
         local esp = espData[1]
 
         if not esp.Enabled then
-            esp.TextLabel.Visible = false
+			esp.TextLabel.Visible = false
             esp.Highlight.Enabled = false
             esp.Tracer.Visible = false
             return
@@ -212,8 +212,8 @@ function KBOB_ESPLibrary:CreateESP(params: ESP_Params)
 			end
 		end
 
-        if self.Settings.Tracer and onScreen then
-            local from = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
+		if self.Settings.Tracer and onScreen then
+			local from = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
             local to = Vector2.new(screenPos.X, screenPos.Y)
             local dir = to - from
             local length = dir.Magnitude
@@ -315,4 +315,3 @@ end))
 
 Globals.KBOB_ESPLibrary = KBOB_ESPLibrary
 return KBOB_ESPLibrary
-
