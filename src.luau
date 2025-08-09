@@ -171,7 +171,7 @@ function KBOB_ESPLibrary:CreateESP(params: ESP_Params)
 	self.ESPObjects[Object] = {{
 		BillboardFolder = BillboardFolder,
 		BillboardGui = BillboardGui,
-		Connection = nil,
+		Connection = {},
 		Highlight = Highlight,
 		Tracer = TracerLineFrame,
 		TextLabel = TextLabel,
@@ -183,7 +183,6 @@ function KBOB_ESPLibrary:CreateESP(params: ESP_Params)
 	Connection = RunService.RenderStepped:Connect(function()
 		if not Object or not Object.Parent then
 			Connection:Disconnect()
-			self:RemoveESP(Object)
 			return
 		end
 
@@ -246,7 +245,24 @@ function KBOB_ESPLibrary:CreateESP(params: ESP_Params)
 		end
 	end)
 
-	self.ESPObjects[Object][1].Connection = Connection
+	local Connection2
+	Connection2 = Object.AncestryChanged:Connect(function(_, parent)
+		if not parent then
+			self:RemoveESP(Object)
+		end
+	end)
+
+	local Connection3 = Object:GetPropertyChangedSignal("Parent"):Connect(function()
+		if not Object.Parent then
+			self:RemoveESP(Object)
+		end
+	end)
+
+	self.ESPObjects[Object][1].Connection = {
+		Connection,
+		Connection2,
+		Connection3
+	}
 end
 
 function KBOB_ESPLibrary:EnabledDistance(enabled: boolean) self.Settings.Distance = enabled end
@@ -280,10 +296,15 @@ function KBOB_ESPLibrary:RemoveESP(object: Instance)
 	if not object then return end
 	for _, esp in pairs(self.ESPObjects[object] or {}) do
 		if esp.BillboardGui then esp.BillboardGui:Destroy() end
-		if esp.Connection then esp.Connection:Disconnect() end
 		if esp.Highlight then esp.Highlight:Destroy() end
 		if esp.Tracer then esp.Tracer:Destroy() end
 		if esp.BillboardFolder then esp.BillboardFolder:Destroy() end
+
+		if esp.Connection then
+			for _, con in pairs(esp.Connection) do
+				con:Disconnect()
+			end
+		end
 	end
 
 	local classFolder = Workspace.KBOB_ESP:FindFirstChild('Class: '.. object.Name)
@@ -324,6 +345,7 @@ end))
 
 Globals.KBOB_ESPLibrary_LOADED = KBOB_ESPLibrary
 return KBOB_ESPLibrary
+
 
 
 
