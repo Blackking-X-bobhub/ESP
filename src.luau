@@ -183,6 +183,7 @@ function KBOB_ESPLibrary:CreateESP(params: ESP_Params)
 	Connection = RunService.RenderStepped:Connect(function()
 		if not Object or not Object.Parent then
 			Connection:Disconnect()
+			self:RemoveESP(Object)
 			return
 		end
 
@@ -323,5 +324,6 @@ end))
 
 Globals.KBOB_ESPLibrary_LOADED = KBOB_ESPLibrary
 return KBOB_ESPLibrary
+
 
 
