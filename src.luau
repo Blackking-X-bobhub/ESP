@@ -9,8 +9,8 @@
 
 local Globals = getgenv()
 
-if Globals.KBOB_ESPLibrary then
-	return Globals.KBOB_ESPLibrary
+if Globals.KBOB_ESPLibrary_LOADED then
+	return Globals.KBOB_ESPLibrary_LOADED
 end
 
 local Objects = {
@@ -321,6 +321,7 @@ table.insert(GIVE_TASKS, Player.CharacterAdded:Connect(function(newCharacter)
 	Character = newCharacter
 end))
 
-Globals.KBOB_ESPLibrary = KBOB_ESPLibrary
+Globals.KBOB_ESPLibrary_LOADED = KBOB_ESPLibrary
 return KBOB_ESPLibrary
+
 
