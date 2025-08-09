@@ -234,13 +234,13 @@ function KBOB_ESPLibrary:CreateESP(params: ESP_Params)
 			esp.TextLabel.TextColor3 = rainbow
 			esp.Highlight.FillColor = rainbow
 			esp.Highlight.OutlineColor = rainbow
-			esp.TracerLineFrame.BackgroundColor3 = rainbow
+			esp.Tracer.BackgroundColor3 = rainbow
 		else
             local currentColor = esp.OriginalColor
             esp.TextLabel.TextColor3 = currentColor
             esp.Highlight.FillColor = currentColor
             esp.Highlight.OutlineColor = currentColor
-            esp.TracerLineFrame.BackgroundColor3 = currentColor
+            esp.Tracer.BackgroundColor3 = currentColor
 		end
 	end)
 
@@ -315,5 +315,3 @@ end))
 
 Globals.KBOB_ESPLibrary = KBOB_ESPLibrary
 return KBOB_ESPLibrary
-
-
