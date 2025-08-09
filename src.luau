@@ -169,6 +169,7 @@ function KBOB_ESPLibrary:CreateESP(params: ESP_Params)
 	Highlight.OutlineColor = Color
 
 	self.ESPObjects[Object] = {{
+		BillboardFolder = BillboardFolder,
 		BillboardGui = BillboardGui,
 		Connection = nil,
 		Highlight = Highlight,
@@ -190,7 +191,7 @@ function KBOB_ESPLibrary:CreateESP(params: ESP_Params)
         local esp = espData[1]
 
         if not esp.Enabled then
-			esp.TextLabel.Visible = false
+          	esp.TextLabel.Visible = false
             esp.Highlight.Enabled = false
             esp.Tracer.Visible = false
             return
@@ -277,11 +278,18 @@ end
 function KBOB_ESPLibrary:RemoveESP(object: Instance)
 	if not object then return end
 	for _, esp in pairs(self.ESPObjects[object] or {}) do
+		if esp.BillboardFolder then esp.BillboardFolder:Destroy() end
 		if esp.BillboardGui then esp.BillboardGui:Destroy() end
 		if esp.Connection then esp.Connection:Disconnect() end
 		if esp.Highlight then esp.Highlight:Destroy() end
 		if esp.Tracer then esp.Tracer:Destroy() end
 	end
+
+	local class = Workspace.KBOB_ESP:FindFirstChild('Class: '.. self.ESPObjects[object])
+	if class then
+		class:Destroy()
+	end
+	
 	self.ESPObjects[object] = nil
 	object:SetAttribute("KBOBESP_Added", nil)
 end
