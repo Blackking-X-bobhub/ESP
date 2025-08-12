@@ -100,10 +100,21 @@ function KBOB_ESPLibrary:CreateESP(params: ESP_Params)
 	local Object = params.Object
 	local Color = params.Color or Color3.fromRGB(255, 255, 255)
 
-	if pcall(function() return Object:GetAttribute("KBOBESP_Added") end) and Object:GetAttribute("KBOBESP_Added") then
-    	self:RemoveESP(Object)
+	if not Object or typeof(Object) ~= "Instance" or not Object:IsDescendantOf(game) then
+		return
 	end
-	Object:SetAttribute("KBOBESP_Added", true)
+
+	local hasESP = false
+	pcall(function()
+		hasESP = Object:GetAttribute("KBOBESP_Added")
+	end)
+	if hasESP then
+		self:RemoveESP(Object)
+	end
+
+	pcall(function()
+		Object:SetAttribute("KBOBESP_Added", true)
+	end)
 
 	local classFolder = Workspace.KBOB_ESP:FindFirstChild('Class: ' .. Object.Name)
 	if not classFolder then
@@ -347,6 +358,7 @@ end))
 
 Globals.KBOB_ESPLibrary_LOADED = KBOB_ESPLibrary
 return KBOB_ESPLibrary
+
 
 
 
