@@ -100,8 +100,8 @@ function KBOB_ESPLibrary:CreateESP(params: ESP_Params)
 	local Object = params.Object
 	local Color = params.Color or Color3.fromRGB(255, 255, 255)
 
-	if Object:GetAttribute("KBOBESP_Added") then
-		self:RemoveESP(Object)
+	if pcall(function() return Object:GetAttribute("KBOBESP_Added") end) and Object:GetAttribute("KBOBESP_Added") then
+    	self:RemoveESP(Object)
 	end
 	Object:SetAttribute("KBOBESP_Added", true)
 
@@ -347,6 +347,7 @@ end))
 
 Globals.KBOB_ESPLibrary_LOADED = KBOB_ESPLibrary
 return KBOB_ESPLibrary
+
 
 
 
