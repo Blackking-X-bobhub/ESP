@@ -10,47 +10,58 @@
 local Globals = getgenv()
 
 if Globals.KBOB_ESPLibrary_LOADED then
-	return Globals.KBOB_ESPLibrary_LOADED
+	return
 end
 
 local Objects = {
-	ScreenGui = Instance.new('ScreenGui'),
-	BillboardGui = Instance.new('BillboardGui'),
-	Folder = Instance.new('Folder'),
-	Frame = Instance.new('Frame'),
-	Highlight = Instance.new('Highlight'),
-	TextLabel = Instance.new('TextLabel'),
+	ScreenGui = Instance.new("ScreenGui"),
+	BillboardGui = Instance.new("BillboardGui"),
+	Folder = Instance.new("Folder"),
+	Frame = Instance.new("Frame"),
+	Highlight = Instance.new("Highlight"),
+	TextLabel = Instance.new("TextLabel"),
 }
 
 local CoreGui = game:GetService('CoreGui');
+local Players = game:GetService('Players');
+local Lighting = game:GetService('Lighting');
 local Workspace = game:GetService('Workspace');
 local RunService = game:GetService('RunService');
-local Player = game:GetService('Players').LocalPlayer
+local TextChatService = game:GetService('TextChatService');
+local UserInputService = game:GetService('UserInputService');
+local ReplicatedStorage = game:GetService('ReplicatedStorage');
+local ProximityPromptService = game:GetService('ProximityPromptService');
+local Workspace = game:GetService('Workspace');
+local RunService = game:GetService('RunService');
+local Player = game:GetService("Players").LocalPlayer
 local Camera = Workspace.CurrentCamera
 
 local Character = Player.Character or Player.CharacterAdded:Wait()
 
-if not Workspace:FindFirstChild('KBOB_ESP') then
+if not Workspace:FindFirstChild("KBOB_ESP") then
 	local folder = Objects.Folder:Clone()
-	folder.Name = 'KBOB_ESP'
+	folder.Name = "KBOB_ESP"
 	folder.Parent = Workspace
 end
 
+
 local function GetHUI()
-	return ((identifyexecutor or getexecutorname) ~= nil and CoreGui) or Player:WaitForChild('PlayerGui')
+	return ((identifyexecutor or getexecutorname) ~= nil and CoreGui) or Player:WaitForChild("PlayerGui")
 end
 
 local function GetPartPosition(object: Model | BasePart)
-	if object:IsA('Model') then
+	if object:IsA("Model") then
 		return object:GetPivot().Position
-	elseif object:IsA('BasePart') then
+	elseif object:IsA("BasePart") then
 		return object.Position
 	end
 	return nil
 end
 
 local function DistanceOfCharacter(point: Vector3)
-	if not point then return math.huge end
+	if not point then
+		return math.huge
+	end
 
 	local hrp = Character and Character:FindFirstChild("HumanoidRootPart")
 	if hrp then
@@ -58,7 +69,7 @@ local function DistanceOfCharacter(point: Vector3)
 	elseif Camera then
 		return (point - Camera.CFrame.Position).Magnitude
 	end
-	
+
 	return math.huge
 end
 
@@ -74,7 +85,7 @@ function KBOB_ESPLibrary.new()
 	local self = setmetatable({}, KBOB_ESPLibrary)
 	self.ESPObjects = {}
 	self.Settings = {
-	    Distance = false,
+		Distance = false,
 		Rainbow = false,
 		TextSize = 18,
 		Text = true,
@@ -89,14 +100,16 @@ end
 export type ESP_Params = {
 	Text: string?,
 	Object: Instance?,
-	Color: Color3?
+	Color: Color3?,
 }
 
 function KBOB_ESPLibrary:CreateESP(params: ESP_Params)
-	if not params then return end
-	assert(typeof(params) == 'table', 'Missing table on CreateESP')
+	if not params then
+		return
+	end
+	assert(typeof(params) == "table", "Missing table on CreateESP")
 
-	local Text = params.Text or 'Object'
+	local Text = params.Text or "Object"
 	local Object = params.Object
 	local Color = params.Color or Color3.fromRGB(255, 255, 255)
 
@@ -116,20 +129,20 @@ function KBOB_ESPLibrary:CreateESP(params: ESP_Params)
 		Object:SetAttribute("KBOBESP_Added", true)
 	end)
 
-	local classFolder = Workspace.KBOB_ESP:FindFirstChild('Class: ' .. Object.Name)
+	local classFolder = Workspace.KBOB_ESP:FindFirstChild("Class: " .. Object.Name)
 	if not classFolder then
 		classFolder = Objects.Folder:Clone()
-		classFolder.Name = 'Class: ' .. Object.Name
+		classFolder.Name = "Class: " .. Object.Name
 		classFolder.Parent = Workspace.KBOB_ESP
 	end
 
 	local BillboardFolder = Objects.Folder:Clone()
-	BillboardFolder.Name = 'BillboardFolder'
+	BillboardFolder.Name = "BillboardFolder"
 	BillboardFolder.Parent = classFolder
 
 	local TracerLine = Objects.ScreenGui:Clone()
 	TracerLine.Parent = GetHUI()
-	TracerLine.Name = 'TracerLine'
+	TracerLine.Name = "TracerLine"
 	TracerLine.IgnoreGuiInset = true
 	TracerLine.ResetOnSpawn = false
 
@@ -152,7 +165,7 @@ function KBOB_ESPLibrary:CreateESP(params: ESP_Params)
 	TextLabel.Parent = Frame
 	TextLabel.BackgroundTransparency = 1
 	TextLabel.Size = UDim2.new(1, 0, 1, 0)
-	TextLabel.FontFace = Font.new('rbxassetid://12187374954', Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+	TextLabel.FontFace = Font.new("rbxassetid://12187374954", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
 	TextLabel.RichText = true
 	TextLabel.TextSize = self.Settings.TextSize
 	TextLabel.Visible = self.Settings.Text
@@ -161,19 +174,19 @@ function KBOB_ESPLibrary:CreateESP(params: ESP_Params)
 	TextLabel.TextStrokeTransparency = 0
 	TextLabel.TextWrapped = true
 
-    local TracerLineFrame = Instance.new("Frame")
-    TracerLineFrame.AnchorPoint = Vector2.new(0.5, 0.5)
-    TracerLineFrame.BackgroundColor3 = Color
-    TracerLineFrame.BorderSizePixel = 0
-   	TracerLineFrame.Size = UDim2.new(0, 2, 0, 100)
-    TracerLineFrame.Visible = self.Settings.Tracer
-    TracerLineFrame.ZIndex = 5
-    TracerLineFrame.Parent = TracerLine
+	local TracerLineFrame = Instance.new("Frame")
+	TracerLineFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+	TracerLineFrame.BackgroundColor3 = Color
+	TracerLineFrame.BorderSizePixel = 0
+	TracerLineFrame.Size = UDim2.new(0, 2, 0, 100)
+	TracerLineFrame.Visible = self.Settings.Tracer
+	TracerLineFrame.ZIndex = 5
+	TracerLineFrame.Parent = TracerLine
 
 	local Highlight = Objects.Highlight:Clone()
 	Highlight.Parent = Object
 	Highlight.Enabled = self.Settings.Highlight
-	Highlight.Name = 'Highlight: ' .. Object.Name
+	Highlight.Name = "Highlight: " .. Object.Name
 	Highlight.Adornee = Object
 	Highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
 	Highlight.FillTransparency = 0.5
@@ -181,16 +194,18 @@ function KBOB_ESPLibrary:CreateESP(params: ESP_Params)
 	Highlight.OutlineTransparency = 0
 	Highlight.OutlineColor = Color
 
-	self.ESPObjects[Object] = {{
-		BillboardFolder = BillboardFolder,
-		BillboardGui = BillboardGui,
-		Connection = {},
-		Highlight = Highlight,
-		Tracer = TracerLineFrame,
-		TextLabel = TextLabel,
-		OriginalColor = Color,
-		Enabled = true
-	}}
+	self.ESPObjects[Object] = {
+		{
+			BillboardFolder = BillboardFolder,
+			BillboardGui = BillboardGui,
+			Connection = {},
+			Highlight = Highlight,
+			Tracer = TracerLineFrame,
+			TextLabel = TextLabel,
+			OriginalColor = Color,
+			Enabled = true,
+		},
+	}
 
 	local Connection
 	Connection = RunService.RenderStepped:Connect(function()
@@ -199,19 +214,23 @@ function KBOB_ESPLibrary:CreateESP(params: ESP_Params)
 			return
 		end
 
-        local espData = self.ESPObjects[Object]
-        if not espData then return end
-        local esp = espData[1]
+		local espData = self.ESPObjects[Object]
+		if not espData then
+			return
+		end
+		local esp = espData[1]
 
-        if not esp.Enabled then
-          	esp.TextLabel.Visible = false
-            esp.Highlight.Enabled = false
-            esp.Tracer.Visible = false
-            return
-        end
+		if not esp.Enabled then
+			esp.TextLabel.Visible = false
+			esp.Highlight.Enabled = false
+			esp.Tracer.Visible = false
+			return
+		end
 
 		local position = GetPartPosition(Object)
-		if not position then return end
+		if not position then
+			return
+		end
 
 		local screenPos, onScreen = Camera:WorldToViewportPoint(position)
 
@@ -228,18 +247,18 @@ function KBOB_ESPLibrary:CreateESP(params: ESP_Params)
 
 		if self.Settings.Tracer and onScreen then
 			local from = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
-            local to = Vector2.new(screenPos.X, screenPos.Y)
-            local dir = to - from
-            local length = dir.Magnitude
-            local midPos = (from + to) / 2
+			local to = Vector2.new(screenPos.X, screenPos.Y)
+			local dir = to - from
+			local length = dir.Magnitude
+			local midPos = (from + to) / 2
 
-            esp.Tracer.Position = UDim2.new(0, midPos.X, 0, midPos.Y)
-            esp.Tracer.Rotation = math.deg(math.atan2(dir.Y, dir.X))
-            esp.Tracer.Size = UDim2.new(0, length, 0, self.Settings.TracerThickness)
-            esp.Tracer.Visible = true
-        else
-          	esp.Tracer.Visible = false
-        end
+			esp.Tracer.Position = UDim2.new(0, midPos.X, 0, midPos.Y)
+			esp.Tracer.Rotation = math.deg(math.atan2(dir.Y, dir.X))
+			esp.Tracer.Size = UDim2.new(0, length, 0, self.Settings.TracerThickness)
+			esp.Tracer.Visible = true
+		else
+			esp.Tracer.Visible = false
+		end
 
 		esp.Highlight.Enabled = self.Settings.Highlight and onScreen
 
@@ -250,11 +269,11 @@ function KBOB_ESPLibrary:CreateESP(params: ESP_Params)
 			esp.Highlight.OutlineColor = rainbow
 			esp.Tracer.BackgroundColor3 = rainbow
 		else
-            local currentColor = esp.OriginalColor
-            esp.TextLabel.TextColor3 = currentColor
-            esp.Highlight.FillColor = currentColor
-            esp.Highlight.OutlineColor = currentColor
-            esp.Tracer.BackgroundColor3 = currentColor
+			local currentColor = esp.OriginalColor
+			esp.TextLabel.TextColor3 = currentColor
+			esp.Highlight.FillColor = currentColor
+			esp.Highlight.OutlineColor = currentColor
+			esp.Tracer.BackgroundColor3 = currentColor
 		end
 	end)
 
@@ -274,44 +293,72 @@ function KBOB_ESPLibrary:CreateESP(params: ESP_Params)
 	self.ESPObjects[Object][1].Connection = {
 		Connection,
 		Connection2,
-		Connection3
+		Connection3,
 	}
 end
 
-function KBOB_ESPLibrary:EnabledDistance(enabled: boolean) self.Settings.Distance = enabled end
-function KBOB_ESPLibrary:EnabledTracer(enabled: boolean) self.Settings.Tracer = enabled end
-function KBOB_ESPLibrary:EnabledRainbow(enabled: boolean) self.Settings.Rainbow = enabled end
-function KBOB_ESPLibrary:EnabledText(enabled: boolean) self.Settings.Text = enabled end
-function KBOB_ESPLibrary:EnabledHighlight(enabled: boolean) self.Settings.Highlight = enabled end
-function KBOB_ESPLibrary:SetTextSize(size: number) self.Settings.TextSize = size end
-function KBOB_ESPLibrary:SetTracerThickness(thickness: number) self.Settings.TracerThickness = thickness end
+function KBOB_ESPLibrary:EnabledDistance(enabled: boolean)
+	self.Settings.Distance = enabled
+end
+function KBOB_ESPLibrary:EnabledTracer(enabled: boolean)
+	self.Settings.Tracer = enabled
+end
+function KBOB_ESPLibrary:EnabledRainbow(enabled: boolean)
+	self.Settings.Rainbow = enabled
+end
+function KBOB_ESPLibrary:EnabledText(enabled: boolean)
+	self.Settings.Text = enabled
+end
+function KBOB_ESPLibrary:EnabledHighlight(enabled: boolean)
+	self.Settings.Highlight = enabled
+end
+function KBOB_ESPLibrary:SetTextSize(size: number)
+	self.Settings.TextSize = size
+end
+function KBOB_ESPLibrary:SetTracerThickness(thickness: number)
+	self.Settings.TracerThickness = thickness
+end
 
 function KBOB_ESPLibrary:SetColor(object: Instance, newColor: Color3)
-	if not object or not self.ESPObjects[object] then return end
+	if not object or not self.ESPObjects[object] then
+		return
+	end
 	for _, esp in ipairs(self.ESPObjects[object]) do
 		esp.OriginalColor = newColor
 	end
 end
 
 function KBOB_ESPLibrary:SetEnabled(object: Instance, enabled: boolean)
-    if not object or not self.ESPObjects[object] then return end
-    for _, esp in ipairs(self.ESPObjects[object]) do
-        esp.Enabled = enabled
-        if not enabled then
-            esp.TextLabel.Visible = false
-            esp.Highlight.Enabled = false
-            esp.Tracer.Visible = false
-        end
-    end
+	if not object or not self.ESPObjects[object] then
+		return
+	end
+	for _, esp in ipairs(self.ESPObjects[object]) do
+		esp.Enabled = enabled
+		if not enabled then
+			esp.TextLabel.Visible = false
+			esp.Highlight.Enabled = false
+			esp.Tracer.Visible = false
+		end
+	end
 end
 
 function KBOB_ESPLibrary:RemoveESP(object: Instance)
-	if not object then return end
+	if not object then
+		return
+	end
 	for _, esp in pairs(self.ESPObjects[object] or {}) do
-		if esp.BillboardGui then esp.BillboardGui:Destroy() end
-		if esp.Highlight then esp.Highlight:Destroy() end
-		if esp.Tracer then esp.Tracer:Destroy() end
-		if esp.BillboardFolder then esp.BillboardFolder:Destroy() end
+		if esp.BillboardGui then
+			esp.BillboardGui:Destroy()
+		end
+		if esp.Highlight then
+			esp.Highlight:Destroy()
+		end
+		if esp.Tracer then
+			esp.Tracer:Destroy()
+		end
+		if esp.BillboardFolder then
+			esp.BillboardFolder:Destroy()
+		end
 
 		if esp.Connection then
 			for _, con in pairs(esp.Connection) do
@@ -320,11 +367,11 @@ function KBOB_ESPLibrary:RemoveESP(object: Instance)
 		end
 	end
 
-	local classFolder = Workspace.KBOB_ESP:FindFirstChild('Class: '.. object.Name)
+	local classFolder = Workspace.KBOB_ESP:FindFirstChild("Class: " .. object.Name)
 	if classFolder and #classFolder:GetChildren() == 0 then
 		classFolder:Destroy()
 	end
-	
+
 	self.ESPObjects[object] = nil
 	object:SetAttribute("KBOBESP_Added", nil)
 end
@@ -339,7 +386,9 @@ function KBOB_ESPLibrary:Unload()
 	self:ClearAll()
 	self.ESPObjects = {}
 	local espFolder = Workspace:FindFirstChild("KBOB_ESP")
-	if espFolder then espFolder:Destroy() end
+	if espFolder then
+		espFolder:Destroy()
+	end
 	local hui = GetHUI()
 	for _, gui in pairs(hui:GetChildren()) do
 		if gui:IsA("ScreenGui") and gui.Name == "TracerLine" then
@@ -350,18 +399,16 @@ function KBOB_ESPLibrary:Unload()
 	for _, task in pairs(GIVE_TASKS) do
 		task:Disconnect()
 	end
+
+	Globals.KBOB_ESPLibrary_LOADED = false
 end
 
-table.insert(GIVE_TASKS, Player.CharacterAdded:Connect(function(newCharacter)
-	Character = newCharacter
-end))
+table.insert(
+	GIVE_TASKS,
+	Player.CharacterAdded:Connect(function(newCharacter)
+		Character = newCharacter
+	end)
+)
 
-Globals.KBOB_ESPLibrary_LOADED = KBOB_ESPLibrary
+Globals.KBOB_ESPLibrary_LOADED = true
 return KBOB_ESPLibrary
-
-
-
-
-
-
-
