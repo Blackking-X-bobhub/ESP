@@ -165,7 +165,7 @@ function KBOB_ESPLibrary:CreateESP(params: ESP_Params)
 	TextLabel.Parent = Frame
 	TextLabel.BackgroundTransparency = 1
 	TextLabel.Size = UDim2.new(1, 0, 1, 0)
-	TextLabel.FontFace = Font.new("rbxassetid://12187374954", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+	TextLabel.FontFace = Font.new("rbxasset://fonts/families/FredokaOne.json", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
 	TextLabel.RichText = true
 	TextLabel.TextSize = self.Settings.TextSize
 	TextLabel.Visible = self.Settings.Text
@@ -412,3 +412,4 @@ table.insert(
 
 Globals.KBOB_ESPLibrary_LOADED = true
 return KBOB_ESPLibrary
+
